@@ -2,8 +2,7 @@
   <div class="container">
     <v-row justify="center">
       <v-col>
-        <h2>{{ formattedTime1 }}</h2>
-        Diferencia: {{ format }}
+        <h1>Diferencia: {{ formattedTDifference }}</h1>
         <v-time-picker
           color="#3F51B5"
           v-model="data.time1"
@@ -13,7 +12,6 @@
     </v-row>
     <v-row justify="center" v-if="true">
       <v-col>
-        <h2>{{ formattedTime2 }}</h2>
         <v-time-picker
           color="#3F51B5"
           v-model="data.time2"
@@ -35,30 +33,48 @@ export default defineComponent({
       time2: '',
     })
 
-    const hours1 = computed(() => parseInt(`${data.time1[0]}${data.time1[1]}`))
-    const minutes1 = computed(() =>
-      parseInt(`${data.time1[3]}${data.time1[4]}`)
-    )
-    const time1 = computed(
-      () => new Date(2014, 6, 2, hours1.value, minutes1.value, 0)
-    )
+    // const hours1 = computed(() => parseInt(`${data.time1[0]}${data.time1[1]}`))
+    // const minutes1 = computed(() =>
+    //   parseInt(`${data.time1[3]}${data.time1[4]}`)
+    // )
+    // const time1 = computed(
+    //   () => new Date(2014, 6, 2, hours1.value, minutes1.value, 0)
+    // )
 
-    const hours2 = computed(() => parseInt(`${data.time2[0]}${data.time2[1]}`))
-    const minutes2 = computed(() =>
-      parseInt(`${data.time2[3]}${data.time2[4]}`)
-    )
-    const time2 = computed(
-      () => new Date(2014, 6, 2, hours2.value, minutes2.value, 0)
-    )
+    // const hours2 = computed(() => parseInt(`${data.time2[0]}${data.time2[1]}`))
+    // const minutes2 = computed(() =>
+    //   parseInt(`${data.time2[3]}${data.time2[4]}`)
+    // )
+    // const time2 = computed(
+    //   () => new Date(2014, 6, 2, hours2.value, minutes2.value, 0)
+    // )
 
-    const difference = computed(() =>
-      differenceInMinutes(time1.value, time2.value)
-    )
+    // const difference = computed(() =>
+    //   differenceInMinutes(time1.value, time2.value)
+    // )
 
     const formattedTDifference = computed(() => {
-      const h = difference.value >= 60 ? Math.round(difference.value / 60) : 0
-      const min = difference.value - 60 * h
-      return `${h} hora${h < 2 ? '' : 's'}${min > 0 ? ` y ${min} minutos` : ''}`
+      const hours1 = parseInt(`${data.time1[0]}${data.time1[1]}`)
+      const minutes1 = parseInt(`${data.time1[3]}${data.time1[4]}`)
+      const time1 = new Date(2014, 6, 2, hours1, minutes1, 0)
+
+      const hours2 = parseInt(`${data.time2[0]}${data.time2[1]}`)
+      const minutes2 = parseInt(`${data.time2[3]}${data.time2[4]}`)
+      const time2 = new Date(2014, 6, 2, hours2, minutes2, 0)
+
+      const difference = differenceInMinutes(time2, time1)
+
+      const h = difference >= 60 ? Math.floor(difference / 60) : 0
+      const min = difference - 60 * h
+      console.log('recalculated...', difference, h, min)
+
+      const p1 = h > 0 ? `${h} hora` : ''
+      const p2 = h < 2 ? '' : 's'
+      const p3 = min > 0 ? ` ${min} minutos` : ''
+      const result =
+        difference <= 0 ? 'La hora debe ser posterior' : p1 + p2 + p3
+
+      return !difference ? '' : result
     })
 
     // const difference = computed(() =>

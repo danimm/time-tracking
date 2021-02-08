@@ -39,7 +39,7 @@ export default defineComponent({
     const minutes1 = computed(() =>
       parseInt(`${data.time1[3]}${data.time1[4]}`)
     )
-    const formattedTime1 = computed(
+    const time1 = computed(
       () => new Date(2014, 6, 2, hours1.value, minutes1.value, 0)
     )
 
@@ -47,25 +47,25 @@ export default defineComponent({
     const minutes2 = computed(() =>
       parseInt(`${data.time2[3]}${data.time2[4]}`)
     )
-    const formattedTime2 = computed(
+    const time2 = computed(
       () => new Date(2014, 6, 2, hours2.value, minutes2.value, 0)
     )
 
     const difference = computed(() =>
-      differenceInMinutes(formattedTime1.value, formattedTime2.value)
+      differenceInMinutes(time1.value, time2.value)
     )
 
-    const format = computed(() => {
-      const h = Math.round(difference.value / 60)
-      const min = Math.round(difference.value / 60 - h * 60)
-      return `${h} horas y ${min} minutos`
+    const formattedTDifference = computed(() => {
+      const h = difference.value >= 60 ? Math.round(difference.value / 60) : 0
+      const min = difference.value - 60 * h
+      return `${h} hora${h < 2 ? '' : 's'}${min > 0 ? ` y ${min} minutos` : ''}`
     })
 
     // const difference = computed(() =>
     //   moment().diff(formattedTime1.value, formattedTime2.value)
     // )
 
-    return { data, format, formattedTime1, formattedTime2 }
+    return { data, formattedTDifference }
   },
 })
 </script>

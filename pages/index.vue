@@ -1,12 +1,12 @@
 <template>
   <div class="container">
-    <nuxt-link to="tt-calcHours">
-      <v-btn x-large>Calcular horas</v-btn>
-    </nuxt-link>
+    <div class="link">
+      <v-btn x-large to="add">Calcular horas</v-btn>
+    </div>
 
-    <nuxt-link to="tt-addHours">
-      <v-btn x-large>Añadir horas</v-btn>
-    </nuxt-link>
+    <div class="link">
+      <v-btn x-large to="#">Añadir horas</v-btn>
+    </div>
   </div>
 </template>
 
@@ -18,12 +18,25 @@ export default Vue.extend({})
 
 <style lang="scss">
 .container {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-evenly;
+  display: grid;
+  grid-gap: 20px;
+  height: 50vh;
 
-  a {
-    text-decoration: none;
+  .link {
+    background-color: aquamarine;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .v-btn:not(.v-btn--round).v-size--x-large {
+      height: 100%;
+      width: 100%;
+    }
+
+    a {
+      text-decoration: none;
+      font-size: 1.5rem;
+    }
   }
 }
 </style>

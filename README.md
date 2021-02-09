@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # time-tracking
 
 ## Build Setup
@@ -18,3 +19,6 @@ $ yarn generate
 ```
 
 For detailed explanation on how things work, check out [Nuxt.js docs](https://nuxtjs.org).
+=======
+# time-tracking
+>>>>>>> 9d43f749e437e333e30652295fe14ba3a82665c1

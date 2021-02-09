@@ -1,8 +1,24 @@
 <template>
-  <div class="container">
-    <h1 class="title">Diferencia: {{ formattedTDifference }}</h1>
-    <v-row justify="center">
+  <div>
+    <v-row class="btn-back">
+      <v-col cols="2">
+        <nuxt-link to="/">Volver</nuxt-link>
+      </v-col>
+    </v-row>
+    <h2 class="title">{{ formattedTDifference }}</h2>
+    <v-row class="btn-container">
+      <v-col cols="6">
+        <v-btn large @click="togglePicker">Confirmar</v-btn>
+      </v-col>
+      <v-col cols="6" v-if="data.showtime2">
+        <v-btn large @click="reset">Reiniciar</v-btn>
+      </v-col>
+    </v-row>
+    <h3>Hora 1 {{ data.time1 }}</h3>
+    <h3>Hora 2 {{ data.time2 }}</h3>
+    <v-row justify="center" v-if="data.showtime1">
       <v-col>
+        <h3>Introduce la hora 1</h3>
         <v-time-picker
           color="#3F51B5"
           v-model="data.time1"
@@ -10,8 +26,9 @@
         ></v-time-picker>
       </v-col>
     </v-row>
-    <v-row justify="center" v-if="true">
+    <v-row justify="center" v-if="data.showtime2">
       <v-col>
+        <h3>Introduce la hora 2</h3>
         <v-time-picker
           color="#3F51B5"
           v-model="data.time2"
@@ -31,7 +48,22 @@ export default defineComponent({
     const data = reactive({
       time1: '',
       time2: '',
+      showtime1: true,
+      showtime2: false,
     })
+
+    const togglePicker = (): void => {
+      console.log('toggle')
+      data.showtime1 = !data.showtime1
+      data.showtime2 = !data.showtime2
+    }
+
+    const reset = () => {
+      data.time1 = ''
+      data.time2 = ''
+      data.showtime1 = true
+      data.showtime2 = false
+    }
 
     const formattedTDifference = computed(() => {
       // Parse hour 1 into number and a DAta
@@ -63,9 +95,22 @@ export default defineComponent({
       return !difference ? '' : result
     })
 
-    return { data, formattedTDifference }
+    return { data, formattedTDifference, togglePicker, reset }
   },
 })
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.btn-container {
+  margin-top: 10px;
+}
+.btn-back {
+  margin-bottom: 10px;
+}
+h3 {
+  margin-bottom: 10px;
+}
+h3:first-of-type {
+  margin-top: 10px;
+}
+</style>

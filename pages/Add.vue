@@ -6,8 +6,17 @@
       </v-col>
     </v-row>
     <h2 class="title">{{ formattedTDifference }}</h2>
-    <h3>Hora 1 {{ data.time1 }}</h3>
-    <h3>Hora 2 {{ data.time2 }}</h3>
+    <v-row>
+      <v-col cols="4">
+        <h3>Hora 1 - {{ data.time1 }}</h3>
+      </v-col>
+      <v-col cols="4">
+        <h3>Hora 2 - {{ data.time2 }}</h3>
+      </v-col>
+      <v-col cols="4">
+        <h3>total:</h3>
+      </v-col>
+    </v-row>
     <v-row justify="center" v-if="data.showtime1">
       <v-col>
         <h3>Introduce la hora 1</h3>
@@ -140,6 +149,7 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
+@import url('https://fonts.googleapis.com/css2?family=EB+Garamond&display=swap');
 .btn-container {
   margin-top: 10px;
 }
@@ -162,5 +172,13 @@ h3:first-of-type {
 .v-time-picker-title__time .v-picker__title__btn,
 .v-time-picker-title__time span {
   color: black;
+}
+.col-4 {
+  padding: 10px;
+}
+.button,
+.title,
+h3 {
+  font-family: 'EB Garamond', serif;
 }
 </style>

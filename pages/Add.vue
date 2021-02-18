@@ -4,8 +4,10 @@
       <v-col cols="2">
         <nuxt-link to="/">Volver</nuxt-link>
       </v-col>
+      <v-col cols="10">
+        <h2 class="title">{{ formattedTDifference }}</h2>
+      </v-col>
     </v-row>
-    <h2 class="title">{{ formattedTDifference }}</h2>
     <v-row>
       <v-col cols="4">
         <h3>Hora 1 - {{ data.time1 }}</h3>
@@ -14,7 +16,16 @@
         <h3>Hora 2 - {{ data.time2 }}</h3>
       </v-col>
       <v-col cols="4">
-        <h3>total:</h3>
+        <h3>total:{{ total }}</h3>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col>
+        <template v-if="formattedTimes.length > 0">
+          <h4 v-for="(time, i) in formattedTimes" :key="i">
+            {{ time }}
+          </h4>
+        </template>
       </v-col>
     </v-row>
     <v-row justify="center" v-if="data.showtime1">
@@ -66,10 +77,23 @@
         <v-btn large @click="reset">Reiniciar</v-btn>
       </v-col>
     </v-row>
+    <v-row>
+      <v-col cols="12">
+        <v-btn color="#a1cae2" x-large @click="saveTime"> Guardar </v-btn>
+      </v-col>
+    </v-row>
   </div>
 </template>
 
 <script lang="ts">
+interface data {
+  time1: string
+  time2: string
+  showtime1: boolean
+  showtime2: boolean
+  selectedTime: number
+  times: number[]
+}
 import {
   computed,
   defineComponent,
@@ -81,11 +105,13 @@ import differenceInMinutes from 'date-fns/differenceInMinutes'
 export default defineComponent({
   name: 'CaclHours',
   setup(pros, ctx) {
-    const data = reactive({
+    const data = reactive(<data>{
       time1: '',
       time2: '',
       showtime1: true,
       showtime2: false,
+      selectedTime: 0,
+      times: [],
     })
 
     const togglePicker = (): void => {
@@ -103,14 +129,41 @@ export default defineComponent({
       data.showtime2 = false
     }
 
+    const saveTime = () => {
+      data.times.push(data.selectedTime)
+      data.selectedTime = 0
+      data.time1 = ''
+      data.time2 = ''
+      data.showtime1 = true
+      data.showtime2 = false
+    }
+
     const picker1: any = ref(null)
     const picker2: any = ref(null)
 
     onMounted(() => {
       picker1.value.selectingHour = true
       picker1.value.selectingHour = true
-      console.log(ctx.refs.picker1)
       // picker.value.selectingMinute = true
+    })
+
+    const formattedTimes = computed(() => {
+      const format: string[] = []
+      data.times.forEach((time) => {
+        const h = time >= 60 ? Math.floor(time / 60) : 0
+        const m = time - 60 * h
+        format.push(`${h}:${m}`)
+      })
+      return format
+    })
+
+    const total = computed(() => {
+      if (data.times.length > 0) {
+        return data.times.reduce((acc, current) => acc + current)
+      }
+
+      // const h = total >= 60 ? Math.floor(total / 60) : 0
+      // const m = total - 60 * h
     })
 
     const formattedTDifference = computed(() => {
@@ -126,6 +179,7 @@ export default defineComponent({
 
       // Time difference
       const difference = differenceInMinutes(time2, time1)
+      data.selectedTime = difference
 
       // Extract hours and rest minutes
       const h = difference >= 60 ? Math.floor(difference / 60) : 0
@@ -143,7 +197,17 @@ export default defineComponent({
       return !difference ? '' : result
     })
 
-    return { data, formattedTDifference, togglePicker, reset, picker1, picker2 }
+    return {
+      data,
+      formattedTDifference,
+      togglePicker,
+      reset,
+      picker1,
+      picker2,
+      saveTime,
+      formattedTimes,
+      total,
+    }
   },
 })
 </script>
@@ -175,6 +239,9 @@ h3:first-of-type {
 }
 .col-4 {
   padding: 10px;
+}
+button {
+  width: 100%;
 }
 .button,
 .title,

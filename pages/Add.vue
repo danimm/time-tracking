@@ -6,45 +6,72 @@
       </v-col>
     </v-row>
     <h2 class="title">{{ formattedTDifference }}</h2>
-    <v-row class="btn-container">
-      <v-col cols="6">
-        <v-btn large @click="togglePicker">Confirmar</v-btn>
-      </v-col>
-      <v-col cols="6" v-if="data.showtime2">
-        <v-btn large @click="reset">Reiniciar</v-btn>
-      </v-col>
-    </v-row>
     <h3>Hora 1 {{ data.time1 }}</h3>
     <h3>Hora 2 {{ data.time2 }}</h3>
     <v-row justify="center" v-if="data.showtime1">
       <v-col>
         <h3>Introduce la hora 1</h3>
         <v-time-picker
-          color="#3F51B5"
+          ref="picker1"
+          full-width
+          class="picker1"
+          color="#fce38a"
           v-model="data.time1"
           format="24hr"
         ></v-time-picker>
       </v-col>
     </v-row>
-    <v-row justify="center" v-if="data.showtime2">
+    <v-row justify="center" v-show="data.showtime2">
       <v-col>
         <h3>Introduce la hora 2</h3>
         <v-time-picker
-          color="#3F51B5"
+          ref="picker2"
+          full-width
+          color="#95e1d3"
           v-model="data.time2"
           format="24hr"
         ></v-time-picker>
+      </v-col>
+    </v-row>
+    <v-row class="btn-container">
+      <v-col cols="6">
+        <v-btn
+          color="#95e1d3"
+          large
+          @click="togglePicker"
+          v-if="data.showtime1"
+        >
+          Introducir hora 2
+        </v-btn>
+        <v-btn
+          class="button"
+          color="#fce38a"
+          large
+          @click="togglePicker"
+          v-if="data.showtime2"
+        >
+          Volver a hora 1
+        </v-btn>
+      </v-col>
+      <v-col cols="6" v-if="data.showtime2">
+        <v-btn large @click="reset">Reiniciar</v-btn>
       </v-col>
     </v-row>
   </div>
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, reactive } from '@nuxtjs/composition-api'
+import {
+  computed,
+  defineComponent,
+  reactive,
+  ref,
+  onMounted,
+} from '@nuxtjs/composition-api'
 import differenceInMinutes from 'date-fns/differenceInMinutes'
 export default defineComponent({
   name: 'CaclHours',
-  setup() {
+  setup(pros, ctx) {
     const data = reactive({
       time1: '',
       time2: '',
@@ -56,6 +83,8 @@ export default defineComponent({
       console.log('toggle')
       data.showtime1 = !data.showtime1
       data.showtime2 = !data.showtime2
+      if (data.showtime1 && picker1.value) picker1.selectingHour = true
+      if (data.showtime2 && picker2.value) picker2.value.selectingHour = true
     }
 
     const reset = () => {
@@ -64,6 +93,16 @@ export default defineComponent({
       data.showtime1 = true
       data.showtime2 = false
     }
+
+    const picker1: any = ref(null)
+    const picker2: any = ref(null)
+
+    onMounted(() => {
+      picker1.value.selectingHour = true
+      picker1.value.selectingHour = true
+      console.log(ctx.refs.picker1)
+      // picker.value.selectingMinute = true
+    })
 
     const formattedTDifference = computed(() => {
       // Parse hour 1 into number and a DAta
@@ -95,7 +134,7 @@ export default defineComponent({
       return !difference ? '' : result
     })
 
-    return { data, formattedTDifference, togglePicker, reset }
+    return { data, formattedTDifference, togglePicker, reset, picker1, picker2 }
   },
 })
 </script>
@@ -112,5 +151,16 @@ h3 {
 }
 h3:first-of-type {
   margin-top: 10px;
+}
+.title {
+  text-align: center;
+}
+.button,
+.picker1 {
+  color: black;
+}
+.v-time-picker-title__time .v-picker__title__btn,
+.v-time-picker-title__time span {
+  color: black;
 }
 </style>

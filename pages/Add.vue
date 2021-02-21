@@ -7,6 +7,24 @@
       <v-col cols="10">
         <h2 class="title">{{ formattedTDifference }}</h2>
       </v-col>
+      <v-simple-table v-if="data.savedTimes.length > 0">
+        <template v-slot:default>
+          <thead>
+            <tr>
+              <th class="text-left">Hora 1</th>
+              <th class="text-left">Hora 2</th>
+              <th class="text-left">T.Trabajado</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(h, index) in data.savedTimes" :key="index">
+              <td>{{ h.hour1 }}</td>
+              <td>{{ h.hour2 }}</td>
+              <td>{{ differenceInMinutes(h.difference) }}</td>
+            </tr>
+          </tbody>
+        </template>
+      </v-simple-table>
     </v-row>
     <v-row>
       <v-col cols="4">
@@ -28,8 +46,26 @@
         </template>
       </v-col>
     </v-row>
-    <v-row justify="center" v-if="data.showtime1">
-      <v-col>
+    <v-row class="time-picker-container" justify="center">
+      <v-btn
+        class="undo"
+        fab
+        color="#fce38a"
+        :disabled="data.showtime1"
+        @click="togglePicker"
+      >
+        <v-icon dark> mdi-undo </v-icon>
+      </v-btn>
+      <v-btn
+        class="forward"
+        fab
+        color="#95e1d3"
+        :disabled="data.showtime2"
+        @click="togglePicker"
+      >
+        <v-icon dark> mdi-forward </v-icon>
+      </v-btn>
+      <v-col v-show="data.showtime1">
         <h3>Introduce la hora 1</h3>
         <v-time-picker
           ref="picker1"
@@ -40,9 +76,7 @@
           format="24hr"
         ></v-time-picker>
       </v-col>
-    </v-row>
-    <v-row justify="center" v-show="data.showtime2">
-      <v-col>
+      <v-col v-show="data.showtime2">
         <h3>Introduce la hora 2</h3>
         <v-time-picker
           ref="picker2"
@@ -53,39 +87,25 @@
         ></v-time-picker>
       </v-col>
     </v-row>
-    <v-row class="btn-container">
-      <v-col cols="6">
-        <v-btn
-          color="#95e1d3"
-          large
-          @click="togglePicker"
-          v-if="data.showtime1"
-        >
-          Introducir hora 2
-        </v-btn>
-        <v-btn
-          class="button"
-          color="#fce38a"
-          large
-          @click="togglePicker"
-          v-if="data.showtime2"
-        >
-          Volver a hora 1
-        </v-btn>
-      </v-col>
-      <v-col cols="6" v-if="data.showtime2">
-        <v-btn large @click="reset">Reiniciar</v-btn>
+    <v-row>
+      <v-col cols="12">
+        <v-btn color="#a1cae2" x-large @click="saveTime">Añadir</v-btn>
       </v-col>
     </v-row>
     <v-row>
-      <v-col cols="12">
-        <v-btn color="#a1cae2" x-large @click="saveTime"> Guardar </v-btn>
+      <v-col v-if="data.showtime2">
+        <v-btn large @click="reset">Reiniciar</v-btn>
       </v-col>
     </v-row>
   </div>
 </template>
 
 <script lang="ts">
+interface hours {
+  hour1: string
+  hour2: string
+  difference: number
+}
 interface data {
   time1: string
   time2: string
@@ -93,6 +113,7 @@ interface data {
   showtime2: boolean
   selectedTime: number
   times: number[]
+  savedTimes: hours[]
 }
 import {
   computed,
@@ -102,9 +123,11 @@ import {
   onMounted,
 } from '@nuxtjs/composition-api'
 import differenceInMinutes from 'date-fns/differenceInMinutes'
+import minToString from '@/utils/minToString'
+
 export default defineComponent({
   name: 'CaclHours',
-  setup(pros, ctx) {
+  setup() {
     const data = reactive(<data>{
       time1: '',
       time2: '',
@@ -112,13 +135,20 @@ export default defineComponent({
       showtime2: false,
       selectedTime: 0,
       times: [],
+      savedTimes: [
+        {
+          hour1: '8:20',
+          hour2: '9:30',
+          difference: 80,
+        },
+      ],
     })
 
     const togglePicker = (): void => {
       console.log('toggle')
       data.showtime1 = !data.showtime1
       data.showtime2 = !data.showtime2
-      if (data.showtime1 && picker1.value) picker1.selectingHour = true
+      if (data.showtime1 && picker1.value) picker1.value.selectingHour = true
       if (data.showtime2 && picker2.value) picker2.value.selectingHour = true
     }
 
@@ -131,6 +161,12 @@ export default defineComponent({
 
     const saveTime = () => {
       data.times.push(data.selectedTime)
+      data.savedTimes.push({
+        hour1: data.time1,
+        hour2: data.time2,
+        difference: data.selectedTime,
+      })
+      console.log(data.savedTimes)
       data.selectedTime = 0
       data.time1 = ''
       data.time2 = ''
@@ -143,8 +179,6 @@ export default defineComponent({
 
     onMounted(() => {
       picker1.value.selectingHour = true
-      picker1.value.selectingHour = true
-      // picker.value.selectingMinute = true
     })
 
     const formattedTimes = computed(() => {
@@ -181,18 +215,7 @@ export default defineComponent({
       const difference = differenceInMinutes(time2, time1)
       data.selectedTime = difference
 
-      // Extract hours and rest minutes
-      const h = difference >= 60 ? Math.floor(difference / 60) : 0
-      const min = difference - 60 * h
-
-      // Break up into 3 parts
-      const p1 = h > 0 ? `${h} hora` : ''
-      const p2 = h < 2 ? '' : 's'
-      const p3 = min > 0 ? ` ${min} minutos` : ''
-
-      // Handle negative result
-      const result =
-        difference <= 0 ? 'La hora debe ser posterior' : p1 + p2 + p3
+      const result = minToString(difference)
 
       return !difference ? '' : result
     })
@@ -207,6 +230,7 @@ export default defineComponent({
       saveTime,
       formattedTimes,
       total,
+      differenceInMinutes,
     }
   },
 })
@@ -247,5 +271,19 @@ button {
 .title,
 h3 {
   font-family: 'EB Garamond', serif;
+}
+.time-picker-container {
+  position: relative;
+  button {
+    position: absolute;
+    z-index: 2;
+    top: 180px;
+  }
+  .forward {
+    right: 10px;
+  }
+  .undo {
+    left: 10px;
+  }
 }
 </style>

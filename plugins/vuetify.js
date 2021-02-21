@@ -21,6 +21,9 @@ export default (ctx) => {
         },
       },
     },
+    icons: {
+      iconfont: 'mdi', // default - only for display purposes
+    },
   })
 
   ctx.app.vuetify = vuetify

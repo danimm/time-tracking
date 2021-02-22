@@ -5,7 +5,7 @@
         <tr>
           <th>Hora 1</th>
           <th>Hora 2</th>
-          <th>T.Trabajado</th>
+          <th>Tiempo Trabajado</th>
         </tr>
       </thead>
       <tbody>

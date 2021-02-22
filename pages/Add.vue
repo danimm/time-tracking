@@ -5,7 +5,7 @@
         <nuxt-link to="/">Volver</nuxt-link>
       </v-col>
       <v-col cols="10">
-        <h2 class="title">{{ formattedTDifference }}</h2>
+<!--        <h2 class="title">{{ formattedTDifference }}</h2>-->
       </v-col>
     </v-row>
     <v-row>
@@ -16,30 +16,10 @@
         <v-card class="text-center">
           <v-card-text>
             <p class="display-1">
-              Total trabajado: 9:20
+              Total: {{ summe }}
             </p>
           </v-card-text>
         </v-card>
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-col cols="4">
-        <h3>Hora 1 - {{ data.time1 }}</h3>
-      </v-col>
-      <v-col cols="4">
-        <h3>Hora 2 - {{ data.time2 }}</h3>
-      </v-col>
-      <v-col cols="4">
-        <h3>total:{{ total }}</h3>
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-col>
-        <template v-if="formattedTimes.length > 0">
-          <h4 v-for="(time, i) in formattedTimes" :key="i">
-            {{ time }}
-          </h4>
-        </template>
       </v-col>
     </v-row>
     <v-row class="time-picker-container" justify="center">
@@ -62,7 +42,6 @@
         <v-icon dark> mdi-forward </v-icon>
       </v-btn>
       <v-col v-show="data.showtime1">
-        <h3>Introduce la hora 1</h3>
         <v-time-picker
           ref="picker1"
           full-width
@@ -70,22 +49,21 @@
           color="#fce38a"
           v-model="data.time1"
           format="24hr"
-        ></v-time-picker>
+        />
       </v-col>
       <v-col v-show="data.showtime2">
-        <h3>Introduce la hora 2</h3>
         <v-time-picker
           ref="picker2"
           full-width
           color="#95e1d3"
           v-model="data.time2"
           format="24hr"
-        ></v-time-picker>
+        />
       </v-col>
     </v-row>
     <v-row>
       <v-col cols="12">
-        <v-btn color="#a1cae2" x-large @click="saveTime">Añadir</v-btn>
+        <v-btn :disabled="!data.time1 || !data.time2" color="#a1cae2" x-large @click="saveTime">Añadir</v-btn>
       </v-col>
     </v-row>
     <v-row>
@@ -117,10 +95,11 @@ import {
   reactive,
   ref,
   onMounted,
+  watchEffect
 } from '@nuxtjs/composition-api'
 import differenceInMinutes from 'date-fns/differenceInMinutes'
 import minToString from '@/utils/minToString'
-import WanziTable from '@/components/Table'
+import WanziTable from '/components/Table.vue'
 
 export default defineComponent({
   name: 'CaclHours',
@@ -133,13 +112,7 @@ export default defineComponent({
       showtime2: false,
       selectedTime: 0,
       times: [],
-      savedTimes: [
-        {
-          hour1: '8:20',
-          hour2: '9:30',
-          difference: 80,
-        },
-      ],
+      savedTimes: [],
     })
 
     const togglePicker = (): void => {
@@ -169,6 +142,7 @@ export default defineComponent({
       data.time1 = ''
       data.time2 = ''
       data.showtime1 = true
+      picker1.value.selectingHour = true
       data.showtime2 = false
     }
 
@@ -177,6 +151,22 @@ export default defineComponent({
 
     onMounted(() => {
       picker1.value.selectingHour = true
+    })
+
+    watchEffect(() => {
+      // Parse hour 1 into number and a DAta
+      const hours1 = parseInt(`${data.time1[0]}${data.time1[1]}`)
+      const minutes1 = parseInt(`${data.time1[3]}${data.time1[4]}`)
+      const time1 = new Date(2014, 6, 2, hours1, minutes1, 0)
+
+      // Parse hour 2 into number and a DAta
+      const hours2 = parseInt(`${data.time2[0]}${data.time2[1]}`)
+      const minutes2 = parseInt(`${data.time2[3]}${data.time2[4]}`)
+      const time2 = new Date(2014, 6, 2, hours2, minutes2, 0)
+
+      // Time difference
+      const result = differenceInMinutes(time2, time1)
+      result ? data.selectedTime = result : data.selectedTime = 0
     })
 
     const formattedTimes = computed(() => {
@@ -198,29 +188,12 @@ export default defineComponent({
       // const m = total - 60 * h
     })
 
-    const formattedTDifference = computed(() => {
-      // Parse hour 1 into number and a DAta
-      const hours1 = parseInt(`${data.time1[0]}${data.time1[1]}`)
-      const minutes1 = parseInt(`${data.time1[3]}${data.time1[4]}`)
-      const time1 = new Date(2014, 6, 2, hours1, minutes1, 0)
-
-      // Parse hour 2 into number and a DAta
-      const hours2 = parseInt(`${data.time2[0]}${data.time2[1]}`)
-      const minutes2 = parseInt(`${data.time2[3]}${data.time2[4]}`)
-      const time2 = new Date(2014, 6, 2, hours2, minutes2, 0)
-
-      // Time difference
-      const difference = differenceInMinutes(time2, time1)
-      data.selectedTime = difference
-
-      const result = minToString(difference)
-
-      return !difference ? '' : result
+    const summe = computed(() => {
+      return minToString(data.savedTimes.reduce((acc, current) => acc + current.difference, 0))
     })
 
     return {
       data,
-      formattedTDifference,
       togglePicker,
       reset,
       picker1,
@@ -229,6 +202,7 @@ export default defineComponent({
       formattedTimes,
       total,
       minToString,
+      summe,
     }
   },
 })

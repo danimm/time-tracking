@@ -7,24 +7,20 @@
       <v-col cols="10">
         <h2 class="title">{{ formattedTDifference }}</h2>
       </v-col>
-      <v-simple-table v-if="data.savedTimes.length > 0">
-        <template v-slot:default>
-          <thead>
-            <tr>
-              <th class="text-left">Hora 1</th>
-              <th class="text-left">Hora 2</th>
-              <th class="text-left">T.Trabajado</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(h, index) in data.savedTimes" :key="index">
-              <td>{{ h.hour1 }}</td>
-              <td>{{ h.hour2 }}</td>
-              <td>{{ differenceInMinutes(h.difference) }}</td>
-            </tr>
-          </tbody>
-        </template>
-      </v-simple-table>
+    </v-row>
+    <v-row>
+      <v-col cols="7" class="text-center">
+        <wanzi-table v-if="data.savedTimes.length > 0" :hours="data.savedTimes" />
+      </v-col>
+      <v-col>
+        <v-card class="text-center">
+          <v-card-text>
+            <p class="display-1">
+              Total trabajado: 9:20
+            </p>
+          </v-card-text>
+        </v-card>
+      </v-col>
     </v-row>
     <v-row>
       <v-col cols="4">
@@ -124,9 +120,11 @@ import {
 } from '@nuxtjs/composition-api'
 import differenceInMinutes from 'date-fns/differenceInMinutes'
 import minToString from '@/utils/minToString'
+import WanziTable from '@/components/Table'
 
 export default defineComponent({
   name: 'CaclHours',
+  components: { WanziTable },
   setup() {
     const data = reactive(<data>{
       time1: '',
@@ -230,7 +228,7 @@ export default defineComponent({
       saveTime,
       formattedTimes,
       total,
-      differenceInMinutes,
+      minToString,
     }
   },
 })
@@ -285,5 +283,8 @@ h3 {
   .undo {
     left: 10px;
   }
+}
+.text-center {
+  text-align: center;
 }
 </style>

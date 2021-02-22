@@ -1,18 +1,18 @@
 <template>
-  <v-simple-table fixed-header height="300px">
+  <v-simple-table class="text-center">
     <template v-slot:default>
       <thead>
         <tr>
-          <th class="text-left">Hora 1</th>
-          <th class="text-left">Hora 2</th>
-          <th class="text-left">T.Trabajado</th>
+          <th>Hora 1</th>
+          <th>Hora 2</th>
+          <th>T.Trabajado</th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="(h, index) in hours" :key="index">
-          <td>{{ item.name }}</td>
-          <td>{{ item.calories }}</td>
-          <td>{{ formattedHours(h) }}</td>
+          <td>{{ h.hour1 }}</td>
+          <td>{{ h.hour2 }}</td>
+          <td>{{ formattedHours(h.difference) }}</td>
         </tr>
       </tbody>
     </template>
@@ -29,7 +29,7 @@ export default {
       type: Array,
     },
   },
-  computed: {
+  methods: {
     formattedHours(minutes) {
       return minToString(minutes)
     },
@@ -37,4 +37,11 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.text-center {
+  text-align: center;
+}
+th {
+  font-size: 48px;
+}
+</style>

@@ -1,27 +1,30 @@
 <template>
   <div>
+    <!-- Total and back -->
     <v-row class="btn-back">
-      <v-col cols="2">
+      <v-col cols="3">
         <nuxt-link to="/">Volver</nuxt-link>
       </v-col>
-      <v-col cols="10">
-<!--        <h2 class="title">{{ formattedTDifference }}</h2>-->
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-col cols="7" class="text-center">
-        <wanzi-table v-if="data.savedTimes.length > 0" :hours="data.savedTimes" />
-      </v-col>
-      <v-col>
+      <v-col cols="9">
         <v-card class="text-center">
           <v-card-text>
-            <p class="display-1">
-              Total: {{ summe }}
-            </p>
+            <p class="display-1">Total: {{ summe }}</p>
           </v-card-text>
         </v-card>
       </v-col>
     </v-row>
+    <!-- Total and back -->
+    <!-- Table -->
+    <v-row>
+      <v-col class="text-center">
+        <wanzi-table
+          v-if="data.savedTimes.length > 0"
+          :hours="data.savedTimes"
+        />
+      </v-col>
+    </v-row>
+    <!-- Table -->
+    <!-- Forward and back -->
     <v-row class="time-picker-container" justify="center">
       <v-btn
         class="undo"
@@ -41,6 +44,8 @@
       >
         <v-icon dark> mdi-forward </v-icon>
       </v-btn>
+      <!-- Forward and back -->
+      <!-- Pickers -->
       <v-col v-show="data.showtime1">
         <v-time-picker
           ref="picker1"
@@ -61,11 +66,20 @@
         />
       </v-col>
     </v-row>
+    <!-- Pickers -->
+    <!-- Buttons -->
     <v-row>
       <v-col cols="12">
-        <v-btn :disabled="!data.time1 || !data.time2" color="#a1cae2" x-large @click="saveTime">Añadir</v-btn>
+        <v-btn
+          :disabled="!data.time1 || !data.time2"
+          color="#a1cae2"
+          x-large
+          @click="saveTime"
+          >Añadir</v-btn
+        >
       </v-col>
     </v-row>
+    <!-- Buttons -->
     <v-row>
       <v-col v-if="data.showtime2">
         <v-btn large @click="reset">Reiniciar</v-btn>
@@ -95,7 +109,7 @@ import {
   reactive,
   ref,
   onMounted,
-  watchEffect
+  watchEffect,
 } from '@nuxtjs/composition-api'
 import differenceInMinutes from 'date-fns/differenceInMinutes'
 import minToString from '@/utils/minToString'
@@ -116,28 +130,29 @@ export default defineComponent({
     })
 
     const togglePicker = (): void => {
-      console.log('toggle')
       data.showtime1 = !data.showtime1
       data.showtime2 = !data.showtime2
       if (data.showtime1 && picker1.value) picker1.value.selectingHour = true
       if (data.showtime2 && picker2.value) picker2.value.selectingHour = true
     }
 
-    const reset = () => {
+    const reset = (): void => {
       data.time1 = ''
       data.time2 = ''
       data.showtime1 = true
       data.showtime2 = false
     }
 
-    const saveTime = () => {
+    const saveTime = (): void => {
+      // Push minutes
       data.times.push(data.selectedTime)
+      // Push to the table
       data.savedTimes.push({
         hour1: data.time1,
         hour2: data.time2,
         difference: data.selectedTime,
       })
-      console.log(data.savedTimes)
+      // Reset all
       data.selectedTime = 0
       data.time1 = ''
       data.time2 = ''
@@ -166,30 +181,13 @@ export default defineComponent({
 
       // Time difference
       const result = differenceInMinutes(time2, time1)
-      result ? data.selectedTime = result : data.selectedTime = 0
-    })
-
-    const formattedTimes = computed(() => {
-      const format: string[] = []
-      data.times.forEach((time) => {
-        const h = time >= 60 ? Math.floor(time / 60) : 0
-        const m = time - 60 * h
-        format.push(`${h}:${m}`)
-      })
-      return format
-    })
-
-    const total = computed(() => {
-      if (data.times.length > 0) {
-        return data.times.reduce((acc, current) => acc + current)
-      }
-
-      // const h = total >= 60 ? Math.floor(total / 60) : 0
-      // const m = total - 60 * h
+      result ? (data.selectedTime = result) : (data.selectedTime = 0)
     })
 
     const summe = computed(() => {
-      return minToString(data.savedTimes.reduce((acc, current) => acc + current.difference, 0))
+      return minToString(
+        data.savedTimes.reduce((acc, current) => acc + current.difference, 0)
+      )
     })
 
     return {
@@ -199,8 +197,6 @@ export default defineComponent({
       picker1,
       picker2,
       saveTime,
-      formattedTimes,
-      total,
       minToString,
       summe,
     }
@@ -249,7 +245,7 @@ h3 {
   button {
     position: absolute;
     z-index: 2;
-    top: 180px;
+    top: 130px;
   }
   .forward {
     right: 10px;

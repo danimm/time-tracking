@@ -61,6 +61,9 @@ export default {
     manifest: {
       lang: 'en',
     },
+    icon: {
+      fileName: 'app-icon.png',
+    },
   },
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
